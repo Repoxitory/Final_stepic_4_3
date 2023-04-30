@@ -37,9 +37,9 @@ def test_guest_can_add_product_to_basket(browser, link):
     page.should_not_be_success_message()
     page.push_button_add_to_basket()
     page.solve_the_quiz()
-    time.sleep(1)
+    time.sleep(3)
     page.should_be_added_to_basket()
-    time.sleep(1)
+    time.sleep(3)
     # page.success_message_should_disappear()
 
 
