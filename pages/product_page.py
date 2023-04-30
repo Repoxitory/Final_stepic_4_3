@@ -23,3 +23,9 @@ class ProductPage(BasePage):
         before_price = self.browser.find_element(*ProductPageLocators.PRODUCT_PRICE).text
         after_price = self.browser.find_element(*ProductPageLocators.BASKET_PRICE).text
         assert before_price in after_price, "Product price does not corresponds to the basket price"
+
+    def should_not_be_success_message(self):
+        assert self.is_not_element_present(*ProductPageLocators.SUCCESS_MESSAGE), "Success message is presented, but should not be"
+
+    def success_message_should_disappear(self):
+        assert self.is_disappeared(*ProductPageLocators.SUCCESS_MESSAGE), "Success message is presented, but should not be"
