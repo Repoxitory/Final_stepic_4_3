@@ -4,20 +4,22 @@
 import pytest
 import time
 
+from .pages.login_page import LoginPage
 from .pages.product_page import ProductPage
 from .pages.basket_page import BasketPage
 
 
-@pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
-                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer1",
-                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer2",
-                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer3",
-                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer4",
-                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer5",
-                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer6",
-                                  pytest.param("http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer7", marks=pytest.mark.xfail),
-                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer8",
-                                  "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer9"])
+@pytest.mark.parametrize('link',
+                             ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
+                              "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer1",
+                              "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer2",
+                              "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer3",
+                              "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer4",
+                              "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer5",
+                              "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer6",
+                              pytest.param("http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer7", marks=pytest.mark.xfail),
+                              "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer8",
+                              "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer9"])
 def test_guest_can_add_product_to_basket(browser, link):
     """
         1. Открываем страницу товара
@@ -111,3 +113,49 @@ def test_guest_cant_see_product_in_basket_opened_from_product_page(browser):
     basket_page = BasketPage(browser, browser.current_url)
     basket_page.should_be_empty_basket()
     basket_page.should_be_text_of_empty_basket()
+
+
+class TestUserAddToBasketFromProductPage:
+
+    @pytest.fixture(scope="function", autouse=True)
+    def setup(self, browser):
+        """
+            1. открыть страницу регистрации;
+            2. зарегистрировать нового пользователя;
+            3. проверить, что пользователь залогинен (авторизован).
+        """
+        page = LoginPage(browser, "http://selenium1py.pythonanywhere.com/ru/accounts/login/")
+        page.register_new_user(email=str(time.time()) + "@fakemail.org", password="password1234567890")
+        page.should_be_authorized_user()
+        time.sleep(3)
+
+    def test_user_can_add_product_to_basket(self, browser):
+        """
+            0. Регистрация (реализация в фикстуре setup)
+            1. Открываем страницу товара
+            2. Нажимаем на кнопку "Добавить в корзину".
+            3. Посчитать результат математического выражения и ввести ответ. Используйте для этого метод solve_quiz_and_get_code()
+
+            Ожидаемый результат:
+            1. Cообщение о том, что товар добавлен в корзину. Название товара в сообщении должно совпадать товаром, который добавили.
+            2. Сообщение со стоимостью корзины. Стоимость корзины совпадает с ценой товара.
+        """
+        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
+        page = ProductPage(browser, link)
+        page.open()
+        page.push_button_add_to_basket()
+        time.sleep(3)
+        page.should_be_added_to_basket()
+        time.sleep(3)
+
+    def test_user_cant_see_success_message(self, browser):
+        """
+            0. Регистрация (реализация в фикстуре setup)
+            1. Открываем страницу товара
+            2. Проверяем, что нет сообщения об успехе с помощью is_not_element_present
+        """
+
+        url = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
+        page = ProductPage(browser, url)
+        page.open()
+        page.should_not_be_success_message()
